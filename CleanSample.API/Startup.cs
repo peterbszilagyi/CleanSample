@@ -22,6 +22,8 @@ namespace CleanSample.API
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment HostingEnvironment { get; }
 
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -29,10 +31,10 @@ namespace CleanSample.API
 
             Log.Logger = new LoggerConfiguration()
                .ReadFrom.Configuration(configuration)
-               .Enrich.FromLogContext()           
+               .Enrich.FromLogContext()
                .Enrich.With<ThreadIdEnricher>()
                .CreateLogger();
-            
+
             Log.Information("Logger init done");
 
             AppDomain.CurrentDomain.DomainUnload += (o, e) => Log.CloseAndFlush();
@@ -60,6 +62,18 @@ namespace CleanSample.API
             services.AddScoped<IAirplaneRepository>(provider => provider.GetService<CleanSampleContext>());
 
             //<---- EF
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder.WithOrigins("http://localhost:3000")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                                  });
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +88,8 @@ namespace CleanSample.API
             loggerFactory.AddSerilog();
 
             app.UseRouting();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 
