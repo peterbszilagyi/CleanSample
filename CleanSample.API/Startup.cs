@@ -5,6 +5,8 @@ using CleanSample.Infrastructure.Providers;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +48,8 @@ namespace CleanSample.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            
+            services.AddControllers(o => o.Filters.Add(new AuthorizeFilter()));            
 
             services.AddTransient<IDateTimeProvider, SystemDateTimeProvider>();
 
@@ -60,20 +63,22 @@ namespace CleanSample.API
                     b => b.MigrationsAssembly(typeof(CleanSampleContext).Assembly.FullName)));
 
             services.AddScoped<IAirplaneRepository>(provider => provider.GetService<CleanSampleContext>());
-
             //<---- EF
 
+            //Needed for REACT client. http://localhost:3000 should be put to config
             services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   builder =>
                                   {
-                                      builder.WithOrigins("http://localhost:3000")
+                                      builder.WithOrigins("http://localhost:3000")                                      
+                                      .AllowAnyMethod()
                                       .AllowAnyHeader()
-                                      .AllowAnyMethod();
+                                      .AllowCredentials();
                                   });
             });
 
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,6 +95,8 @@ namespace CleanSample.API
             app.UseRouting();
 
             app.UseCors(MyAllowSpecificOrigins);
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

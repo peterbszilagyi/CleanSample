@@ -5,14 +5,15 @@ using CleanSample.App.UseCases.Airplanes.Actions.DeleteAirplane;
 using CleanSample.App.UseCases.Airplanes.Actions.ModifyAirplane;
 using CleanSample.App.UseCases.Airplanes.Queries.GetAirplanes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CleanSample.API.Controllers
-{
-    [ApiController]
+{       
     [Route("api/[controller]")]
     public class AirplaneController : ControllerBase
     {
@@ -37,7 +38,7 @@ namespace CleanSample.API.Controllers
         }
 
         //api/airplane/1
-        //f.e.:GET http://localhost:61993/api/airplane/1
+        //f.e.:GET http://localhost:61993/api/airplane/1        
         [HttpGet("{id}")]
         public async Task<ActionResult<AirplaneDTO>> GetAirplane(int id)
         {

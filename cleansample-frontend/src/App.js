@@ -13,7 +13,10 @@ function App() {
   useEffect(() => { getAirplanes() }, []);
 
   const getAirplanes = () => {
-    fetch("http://localhost:61993/api/airplane/getall")
+    fetch("http://localhost:61993/api/airplane/getall", {
+      method: 'Get',
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(
         (result) => {
@@ -30,6 +33,7 @@ function App() {
     const requestOptions = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(name)
     };
     fetch('http://localhost:61993/api/airplane', requestOptions)
@@ -42,6 +46,7 @@ function App() {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(airplane)
     };
     fetch('http://localhost:61993/api/airplane', requestOptions)
@@ -53,7 +58,8 @@ function App() {
   const deleteAirplane = (id) => {
     const requestOptions = {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
     };
     fetch('http://localhost:61993/api/airplane/' + id, requestOptions)
       .then(response => {
